@@ -66,10 +66,11 @@ func main() {
 	myClient := &http.Client{Timeout: 10 * time.Second}
 	newsapi := news.NewClient(myClient, apiKey, 20)
 
-	fs := http.FileServer(http.Dir("assets"))
+	fs := http.FileServer(http.Dir("static files"))
 
 	mux := http.NewServeMux()
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))
+	mux.Handle("/assets2/", http.StripPrefix("/assets2/", fs))
 	mux.HandleFunc("/search", searchHandler(newsapi))
 	mux.HandleFunc("/", indexHandler)
 	http.ListenAndServe(":"+port, mux)
