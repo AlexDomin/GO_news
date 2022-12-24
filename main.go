@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"log"
 	"math"
@@ -38,6 +39,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func searchHandler(newsapi *news.Client) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		u, err := url.Parse(r.URL.String())
+		fmt.Print(u)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -49,6 +51,18 @@ func searchHandler(newsapi *news.Client) http.HandlerFunc {
 		if page == "" {
 			page = "1"
 		}
+
+		// var results *news.Results
+		// if searchQuery == "" {
+		// 	results = nil
+		// } else {
+		// 	results, err := newsapi.FetchEverything(searchQuery, page)
+		// 	fmt.Print(results)
+		// 	if err != nil {
+		// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 		return
+		// 	}
+		// }
 
 		results, err := newsapi.FetchEverything(searchQuery, page)
 		if err != nil {
@@ -67,6 +81,14 @@ func searchHandler(newsapi *news.Client) http.HandlerFunc {
 			NextPage:   nextPage,
 			TotalPages: int(math.Ceil(float64(results.TotalResults) / float64(newsapi.PageSize))),
 			Results:    results,
+		}
+
+		if ok := !search.IsLastPage(); ok {
+			search.NextPage++
+		}
+
+		func (s *Search) IsLastPage() bool {
+			return s.NextPage >= s.TotalPages
 		}
 
 		buf := &bytes.Buffer{}
