@@ -52,23 +52,23 @@ func searchHandler(newsapi *news.Client) http.HandlerFunc {
 			page = "1"
 		}
 
-		// var results *news.Results
-		// if searchQuery == "" {
-		// 	results = nil
-		// } else {
-		// 	results, err := newsapi.FetchEverything(searchQuery, page)
-		// 	fmt.Print(results)
-		// 	if err != nil {
-		// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 		return
-		// 	}
-		// }
-
-		results, err := newsapi.FetchEverything(searchQuery, page)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		var results *news.Results
+		if searchQuery == "" {
+			results = &news.Results{}
+		} else {
+			results, err = newsapi.FetchEverything(searchQuery, page)
+			fmt.Print(results)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 		}
+
+		// results, err := newsapi.FetchEverything(searchQuery, page)
+		// if err != nil {
+		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 	return
+		// }
 
 		nextPage, err := strconv.Atoi(page)
 		if err != nil {
@@ -87,10 +87,6 @@ func searchHandler(newsapi *news.Client) http.HandlerFunc {
 			search.NextPage++
 		}
 
-		func (s *Search) IsLastPage() bool {
-			return s.NextPage >= s.TotalPages
-		}
-
 		buf := &bytes.Buffer{}
 		err = tpl.Execute(buf, search)
 		if err != nil {
@@ -100,6 +96,21 @@ func searchHandler(newsapi *news.Client) http.HandlerFunc {
 
 		buf.WriteTo(w)
 	}
+}
+
+func (s *Search) CurrentPage() int {
+	if s.NextPage == 1 {
+		return s.NextPage
+	}
+	return s.NextPage - 1
+}
+
+func (s *Search) PreviousPage() int {
+	return s.CurrentPage() - 1
+}
+
+func (s *Search) IsLastPage() bool {
+	return s.NextPage >= s.TotalPages
 }
 
 func main() {

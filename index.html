@@ -39,30 +39,43 @@
           {{ end }}
         {{ end }}
       </div>
-      <ul class="search-results">
-        <div class="pagination">
-          {{ if . }}
-            {{ if (ne .IsLastPage true) }}
-              <a href="/search?q={{ .Query }}&page={{ .NextPage }}" class="button next-page">Next</a>
-            {{ end }}
+      <div class="pagination">
+        {{ if . }}
+          {{ if (gt .NextPage 2) }}
+          <a
+            href="/search?q={{ .Query }}&page={{ .PreviousPage }}"
+            class="button previous-page"
+            >Previous</a
+          >
           {{ end }}
-        </div>
-        {{ range.Results.Articles }}
-        <li class="news-article">
-          <div>
-            <a target="_blank" rel="noreferrer noopener" href="{{.URL}}">
-              <h3 class="title">{{.Title }}</h3>
-            </a>
-            <p class="description">{{ .Description }}</p>
-            <div class="metadata">
-              <p class="source">{{ .Source.Name }}</p>
-              <time class="published-date">{{ .FormatPublishedDate }}</time>
-            </div>
-          </div>
-          <img class="article-image" src="{{ .URLToImage }}" />
-        </li>
+          {{ if (ne .IsLastPage true) }}
+          <a
+            href="/search?q={{ .Query }}&page={{ .NextPage }}"
+            class="button next-page"
+            >Next</a
+          >
+          {{ end }}
         {{ end }}
-      </ul>
+      </div>
+      <div style="margin-top: 25px;">
+        <ul class="search-results">
+          {{ range.Results.Articles }}
+          <li class="news-article">
+            <div>
+              <a target="_blank" rel="noreferrer noopener" href="{{.URL}}">
+                <h3 class="title">{{.Title }}</h3>
+              </a>
+              <p class="description">{{ .Description }}</p>
+              <div class="metadata">
+                <p class="source">{{ .Source.Name }}</p>
+                <time class="published-date">{{ .FormatPublishedDate }}</time>
+              </div>
+            </div>
+            <img class="article-image" src="{{ .URLToImage }}" />
+          </li>
+          {{ end }}
+        </ul>
+      </div>
     </section>
   </main>
 </body>
